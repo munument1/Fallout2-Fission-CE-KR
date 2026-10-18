@@ -33,13 +33,15 @@ jobs:
         run: |
           $package = 'Fallout-Fission-beta-0.9.7.8-korean.1-Windows-x64'
           New-Item -ItemType Directory -Path "$package/fonts" -Force
+          New-Item -ItemType Directory -Path "$package/data/text/korean/game" -Force
           Copy-Item build-korean/Release/fallout-fission-x64.exe "$package/"
           Copy-Item os/macos/fission.dat "$package/"
           Copy-Item files/fonts/* "$package/fonts/"
           Copy-Item GDI_FONT_PRESET.cfg "$package/fission.cfg"
+          Copy-Item files/fission/text/korean/game/FISSION.MSG "$package/data/text/korean/game/FISSION.MSG"
           Copy-Item KOR_README.md "$package/"
           Compress-Archive -Path $package -DestinationPath "$package.zip"
-          python -c "import zipfile; z=zipfile.ZipFile('$package.zip'); assert z.testzip() is None; assert sum(n.lower().endswith('.exe') for n in z.namelist())==1; assert len({n.split('/')[0] for n in z.namelist()})==1; assert any(n.endswith('fallout-fission-x64.exe') for n in z.namelist()); assert any(n.endswith('fission.dat') for n in z.namelist()); assert all(any(n.endswith(f) for n in z.namelist()) for f in ['fonts/Cafe24OhsquareAir-v2.0.ttf', 'fonts/Cafe24-OhsquareAir-LICENSE.pdf', 'fission.cfg'])"
+          python -c "import zipfile; z=zipfile.ZipFile('$package.zip'); assert z.testzip() is None; assert sum(n.lower().endswith('.exe') for n in z.namelist())==1; assert len({n.split('/')[0] for n in z.namelist()})==1; assert any(n.endswith('fallout-fission-x64.exe') for n in z.namelist()); assert any(n.endswith('fission.dat') for n in z.namelist()); assert all(any(n.endswith(f) for n in z.namelist()) for f in ['fonts/Cafe24OhsquareAir-v2.0.ttf', 'fonts/Cafe24-OhsquareAir-LICENSE.pdf', 'data/text/korean/game/FISSION.MSG', 'fission.cfg'])"
           (Get-FileHash "$package.zip" -Algorithm SHA256).Hash.ToLower() + "  $package.zip" | Out-File SHA256SUMS.txt -Encoding ascii
       - uses: actions/upload-artifact@v4
         with:

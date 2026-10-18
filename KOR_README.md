@@ -17,7 +17,7 @@ Fallout: F.I.S.S.I.O.N.은 [Fallout2-CE](https://github.com/alexbatalov/fallout2
 
 본문은 **돋움 11**, 버튼과 제목은 **카페24 아네모네 에어 16·굵게**를 사용합니다. 기술 목록은 **11픽셀 간격**으로 표시합니다.
 
-[한국어 Windows 배포본](https://github.com/munument1/Fallout2-Fission-CE-KR/releases/tag/beta-0.9.7.8-korean.1)의 파일을 게임 폴더에 풀고 `fallout-fission-x64.exe`를 실행하세요. `fonts` 폴더도 함께 복사합니다. 기존 `fission.cfg`를 유지하려면 배포본의 `[font]` 설정을 기존 파일의 같은 항목에 반영하세요.
+[한국어 Windows 배포본](https://github.com/munument1/Fallout2-Fission-CE-KR/releases/tag/FISSION-CE-Korean-V0.97.4)의 파일을 게임 폴더에 풀고 `fallout-fission-x64.exe`를 실행하세요. `fonts` 폴더도 함께 복사합니다. 기존 `fission.cfg`를 유지하려면 배포본의 `[font]` 설정을 기존 파일의 같은 항목에 반영하세요.
 
 카페24 글꼴과 배포 라이선스가 포함되어 있습니다.
 
