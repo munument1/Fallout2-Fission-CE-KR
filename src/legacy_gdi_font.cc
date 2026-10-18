@@ -56,7 +56,7 @@ static GdiFontConfig getGdiFontConfig(int font)
             std::max(1, settings.font.gdi_title_size),
             std::clamp(settings.font.gdi_title_weight, 0, 1000),
             std::max(1, settings.font.gdi_title_line_height),
-            ANTIALIASED_QUALITY,
+            NONANTIALIASED_QUALITY,
         };
     }
 
@@ -66,7 +66,7 @@ static GdiFontConfig getGdiFontConfig(int font)
             std::max(1, settings.font.gdi_button_size),
             std::clamp(settings.font.gdi_button_weight, 0, 1000),
             std::max(1, settings.font.gdi_button_line_height),
-            ANTIALIASED_QUALITY,
+            NONANTIALIASED_QUALITY,
         };
     }
 
@@ -125,6 +125,7 @@ static void loadBundledFonts()
     const std::wstring base = executableDirectory() + L"\\fonts\\";
     const wchar_t* names[] = {
         L"NanumBarunGothic.ttf",
+        L"Cafe24OhsquareAir-v2.0.ttf",
     };
 
     for (const wchar_t* name : names) {
@@ -307,9 +308,8 @@ static int gdiFontGetLineHeight()
 {
     int height = getGdiFontConfig(gGdi.currentFont).lineHeight;
 
-    // The legacy fallout2font.dll applies [MISC] Adjust=1 only to font 101.
-    // It reports this reduced value to Fallout for row layout, while TextOutput
-    // still draws the complete GDI glyph. Character-editor skills use font 101.
+    // The character editor adds one pixel between skill rows. Report 10 for
+    // the 11 px body preset so all 18 skills fit, while drawing the full glyph.
     if (gGdi.currentFont == 101) {
         height--;
     }
@@ -351,7 +351,9 @@ static int gdiFontGetLetterSpacing()
 
 static int gdiFontGetBufferSize(const char* string)
 {
-    return gdiFontGetStringWidth(string) * gdiFontGetLineHeight();
+    SIZE measured = measureText(decodeLegacyText(string));
+    int rasterHeight = static_cast<int>(measured.cy) + std::abs(settings.font.baseline_offset);
+    return static_cast<int>(measured.cx) * std::max(gdiFontGetLineHeight(), rasterHeight);
 }
 
 static void gdiFontDrawText(unsigned char* buf, const char* string, int length, int pitch, int color)
@@ -391,6 +393,34 @@ static void gdiFontDrawText(unsigned char* buf, const char* string, int length, 
 
     std::memset(gGdi.pixels, 0, static_cast<size_t>(gGdi.bitmapWidth) * gGdi.bitmapHeight * sizeof(unsigned int));
     TextOutW(gGdi.dc, 0, settings.font.baseline_offset, text.c_str(), fit);
+    GdiFlush();
+
+    // Some bundled faces contain a blank bullet glyph. Preserve menu markers.
+    if (text.front() == L'\x2022' || text.front() == L'\x25CF') {
+        SIZE marker = {};
+        GetTextExtentPoint32W(gGdi.dc, text.c_str(), 1, &marker);
+        int markerWidth = std::min(static_cast<int>(marker.cx), measuredWidth);
+        bool hasInk = false;
+        for (int y = 0; y < surfaceHeight && !hasInk; y++) {
+            for (int x = 0; x < markerWidth; x++) {
+                if ((gGdi.pixels[static_cast<size_t>(y) * gGdi.bitmapWidth + x] & 0xFFFFFF) != 0) {
+                    hasInk = true;
+                    break;
+                }
+            }
+        }
+        if (!hasInk && markerWidth > 0) {
+            int diameter = std::min({ markerWidth, surfaceHeight, std::clamp(measuredHeight / 4, 2, 5) });
+            int left = (markerWidth - diameter) / 2;
+            int top = std::clamp((measuredHeight - diameter) / 2 + settings.font.baseline_offset, 0, surfaceHeight - diameter);
+            HGDIOBJ previousBrush = SelectObject(gGdi.dc, GetStockObject(WHITE_BRUSH));
+            HGDIOBJ previousPen = SelectObject(gGdi.dc, GetStockObject(WHITE_PEN));
+            Ellipse(gGdi.dc, left, top, left + diameter, top + diameter);
+            SelectObject(gGdi.dc, previousBrush);
+            SelectObject(gGdi.dc, previousPen);
+            GdiFlush();
+        }
+    }
 
     int threshold = std::clamp(settings.font.gdi_binary_threshold, 1, 255);
     int copyWidth = std::min(length, measuredWidth);
