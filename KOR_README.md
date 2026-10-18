@@ -19,7 +19,7 @@ Fallout: F.I.S.S.I.O.N.은 [Fallout2-CE](https://github.com/alexbatalov/fallout2
 
 [한국어 Windows 배포본](https://github.com/munument1/Fallout2-Fission-CE-KR/releases/tag/beta-0.9.7.8-korean.1)의 파일을 게임 폴더에 풀고 `fallout-fission-x64.exe`를 실행하세요. `fonts` 폴더도 함께 복사합니다. 기존 `fission.cfg`를 유지하려면 배포본의 `[font]` 설정을 기존 파일의 같은 항목에 반영하세요.
 
-카페24 글꼴과 배포 라이선스가 포함되어 있습니다. 설정 편집기의 한국어 GDI 프리셋도 같은 글꼴과 크기를 적용합니다.
+카페24 글꼴과 배포 라이선스가 포함되어 있습니다.
 
 ## 주요 기능
 

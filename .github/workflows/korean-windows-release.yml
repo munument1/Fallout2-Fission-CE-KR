@@ -1,8 +1,5 @@
 name: Verified Korean Windows release
 on:
-  push:
-    branches: [main]
-    paths: [.github/workflows/korean-windows-release.yml]
   workflow_dispatch:
 permissions:
   contents: write
@@ -16,8 +13,6 @@ jobs:
           python-version: '3.12'
       - name: Rebuild and verify localized DAT
         run: python tools/build_fission_dat.py --output os/macos/fission.dat
-      - name: Verify shipped preset matches configuration editor
-        run: python -c "import configparser,runpy; c=configparser.ConfigParser(); c.read('GDI_FONT_PRESET.cfg'); e=runpy.run_path('tools/fission_config_editor.py')['KOREAN_GDI_PRESET']; assert all(e[s+'.'+k]==v for s in c for k,v in c[s].items())"
       - uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
@@ -29,10 +24,6 @@ jobs:
           cl /nologo /std:c++17 /EHsc /utf-8 /W4 /WX tools\gdi_font_probe.cc /Fo:build-font\gdi_font_probe.obj /Fe:build-font\gdi_font_probe.exe /link gdi32.lib user32.lib
           if errorlevel 1 exit /b 1
           build-font\gdi_font_probe.exe
-      - name: Build configuration editor
-        run: |
-          python -m pip install pyinstaller==6.16.0
-          python -m PyInstaller --noconfirm --onefile --windowed --name FissionConfigEditor tools/fission_config_editor.py
       - name: Configure Windows x64
         run: cmake -S . -B build-korean -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DSDL_FORCE_STATIC_VCRT=ON
       - name: Build Windows x64
@@ -47,9 +38,8 @@ jobs:
           Copy-Item files/fonts/* "$package/fonts/"
           Copy-Item GDI_FONT_PRESET.cfg "$package/fission.cfg"
           Copy-Item KOR_README.md "$package/"
-          Copy-Item dist/FissionConfigEditor.exe "$package/"
           Compress-Archive -Path $package -DestinationPath "$package.zip"
-          python -c "import zipfile; z=zipfile.ZipFile('$package.zip'); assert z.testzip() is None; assert len({n.split('/')[0] for n in z.namelist()})==1; assert any(n.endswith('fallout-fission-x64.exe') for n in z.namelist()); assert any(n.endswith('fission.dat') for n in z.namelist()); assert all(any(n.endswith(f) for n in z.namelist()) for f in ['fonts/Cafe24OhsquareAir-v2.0.ttf', 'fonts/Cafe24-OhsquareAir-LICENSE.pdf', 'FissionConfigEditor.exe', 'fission.cfg'])"
+          python -c "import zipfile; z=zipfile.ZipFile('$package.zip'); assert z.testzip() is None; assert sum(n.lower().endswith('.exe') for n in z.namelist())==1; assert len({n.split('/')[0] for n in z.namelist()})==1; assert any(n.endswith('fallout-fission-x64.exe') for n in z.namelist()); assert any(n.endswith('fission.dat') for n in z.namelist()); assert all(any(n.endswith(f) for n in z.namelist()) for f in ['fonts/Cafe24OhsquareAir-v2.0.ttf', 'fonts/Cafe24-OhsquareAir-LICENSE.pdf', 'fission.cfg'])"
           (Get-FileHash "$package.zip" -Algorithm SHA256).Hash.ToLower() + "  $package.zip" | Out-File SHA256SUMS.txt -Encoding ascii
       - uses: actions/upload-artifact@v4
         with:
@@ -71,7 +61,7 @@ jobs:
           body: |
             본문 돋움 11, 버튼·제목 카페24 아네모네 에어 16·굵게를 적용했습니다.
             기술 목록은 11픽셀 간격으로 표시합니다. 메뉴의 점 표시도 보완했습니다.
-            카페24 글꼴·라이선스와 최신 프리셋을 적용한 FissionConfigEditor.exe를 포함합니다.
+            카페24 글꼴과 배포 라이선스를 포함합니다.
 
             압축을 풀고 내부 파일과 fonts 폴더를 게임 폴더에 복사한 뒤 fallout-fission-x64.exe를 실행하세요.
             기존 fission.cfg를 유지하려면 배포본의 [font] 설정을 기존 파일의 같은 항목에 반영하세요.
