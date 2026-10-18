@@ -16,6 +16,23 @@ jobs:
           python-version: '3.12'
       - name: Rebuild and verify localized DAT
         run: python tools/build_fission_dat.py --output os/macos/fission.dat
+      - name: Verify shipped preset matches configuration editor
+        run: python -c "import configparser,runpy; c=configparser.ConfigParser(); c.read('GDI_FONT_PRESET.cfg'); e=runpy.run_path('tools/fission_config_editor.py')['KOREAN_GDI_PRESET']; assert all(e[s+'.'+k]==v for s in c for k,v in c[s].items())"
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Verify Korean font rendering and skill spacing
+        shell: cmd
+        run: |
+          mkdir build-font\fonts
+          copy files\fonts\* build-font\fonts\
+          cl /nologo /std:c++17 /EHsc /utf-8 /W4 /WX tools\gdi_font_probe.cc /Fo:build-font\gdi_font_probe.obj /Fe:build-font\gdi_font_probe.exe /link gdi32.lib user32.lib
+          if errorlevel 1 exit /b 1
+          build-font\gdi_font_probe.exe
+      - name: Build configuration editor
+        run: |
+          python -m pip install pyinstaller==6.16.0
+          python -m PyInstaller --noconfirm --onefile --windowed --name FissionConfigEditor tools/fission_config_editor.py
       - name: Configure Windows x64
         run: cmake -S . -B build-korean -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DSDL_FORCE_STATIC_VCRT=ON
       - name: Build Windows x64
@@ -23,35 +40,40 @@ jobs:
       - name: Assemble Korean package
         shell: pwsh
         run: |
-          $package = 'Fallout-Fission-beta-0.9.7.7-korean.1-Windows-x64'
+          $package = 'Fallout-Fission-beta-0.9.7.8-korean.1-Windows-x64'
           New-Item -ItemType Directory -Path "$package/fonts" -Force
           Copy-Item build-korean/Release/fallout-fission-x64.exe "$package/"
           Copy-Item os/macos/fission.dat "$package/"
           Copy-Item files/fonts/* "$package/fonts/"
           Copy-Item GDI_FONT_PRESET.cfg "$package/fission.cfg"
           Copy-Item KOR_README.md "$package/"
+          Copy-Item dist/FissionConfigEditor.exe "$package/"
           Compress-Archive -Path $package -DestinationPath "$package.zip"
-          python -c "import zipfile; z=zipfile.ZipFile('$package.zip'); assert z.testzip() is None; assert len({n.split('/')[0] for n in z.namelist()})==1; assert any(n.endswith('fallout-fission-x64.exe') for n in z.namelist()); assert any(n.endswith('fission.dat') for n in z.namelist()); assert any(n.endswith('NanumBarunGothic.ttf') for n in z.namelist())"
+          python -c "import zipfile; z=zipfile.ZipFile('$package.zip'); assert z.testzip() is None; assert len({n.split('/')[0] for n in z.namelist()})==1; assert any(n.endswith('fallout-fission-x64.exe') for n in z.namelist()); assert any(n.endswith('fission.dat') for n in z.namelist()); assert all(any(n.endswith(f) for n in z.namelist()) for f in ['fonts/Cafe24OhsquareAir-v2.0.ttf', 'fonts/Cafe24-OhsquareAir-LICENSE.pdf', 'FissionConfigEditor.exe', 'fission.cfg'])"
           (Get-FileHash "$package.zip" -Algorithm SHA256).Hash.ToLower() + "  $package.zip" | Out-File SHA256SUMS.txt -Encoding ascii
       - uses: actions/upload-artifact@v4
         with:
           name: Korean-Windows-verified
           path: |
-            Fallout-Fission-beta-0.9.7.7-korean.1-Windows-x64.zip
+            Fallout-Fission-beta-0.9.7.8-korean.1-Windows-x64.zip
             SHA256SUMS.txt
           if-no-files-found: error
       - name: Publish verified prerelease
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: beta-0.9.7.7-korean.1
+          tag_name: beta-0.9.7.8-korean.1
           target_commitish: ${{ github.sha }}
-          name: Fallout Fission 한국어판 beta-0.9.7.7-korean.1
+          name: Fallout Fission 한국어판 beta-0.9.7.8-korean.1
           prerelease: true
           files: |
-            Fallout-Fission-beta-0.9.7.7-korean.1-Windows-x64.zip
+            Fallout-Fission-beta-0.9.7.8-korean.1-Windows-x64.zip
             SHA256SUMS.txt
           body: |
-            공식 upstream 5056bfbe65f318f2b476321e9120858b4e1e6b4a까지 46개 커밋 반영.
-            부드러운 스크롤과 확대/축소, 최신 옵션 구조를 반영하고 한국어 GDI 폰트 지원을 유지했습니다.
-            새 확대/축소 메시지를 번역했습니다. 한국어 DAT를 재구축하고 모든 항목의 바이트 일치를 검증한 후 Windows x64 빌드와 ZIP 무결성을 확인했습니다.
-            원본 Fallout 게임 데이터는 포함하지 않습니다. 패키지 fission.cfg는 한국어 폰트 설정 예시이므로 기존 개인 설정과 합쳐 사용하세요.
+            본문 돋움 11, 버튼·제목 카페24 아네모네 에어 16·굵게를 적용했습니다.
+            기술 목록은 11픽셀 간격으로 표시합니다. 메뉴의 점 표시도 보완했습니다.
+            카페24 글꼴·라이선스와 최신 프리셋을 적용한 FissionConfigEditor.exe를 포함합니다.
+
+            압축을 풀고 내부 파일과 fonts 폴더를 게임 폴더에 복사한 뒤 fallout-fission-x64.exe를 실행하세요.
+            기존 fission.cfg를 유지하려면 배포본의 [font] 설정을 기존 파일의 같은 항목에 반영하세요.
+
+            Windows x64 빌드, 실제 GDI 글꼴 로딩·행 간격·버퍼 경계 테스트, 한국어 DAT 및 ZIP 무결성 검증을 통과한 패키지입니다.

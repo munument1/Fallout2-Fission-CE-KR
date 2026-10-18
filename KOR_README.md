@@ -13,6 +13,14 @@ Fallout: F.I.S.S.I.O.N.은 [Fallout2-CE](https://github.com/alexbatalov/fallout2
 
 ---
 
+## 한국어 Windows 글꼴 프리셋
+
+본문은 **돋움 11**, 버튼과 제목은 **카페24 아네모네 에어 16·굵게**를 사용합니다. 기술 목록은 **11픽셀 간격**으로 표시합니다.
+
+[한국어 Windows 배포본](https://github.com/munument1/Fallout2-Fission-CE-KR/releases/tag/beta-0.9.7.8-korean.1)의 파일을 게임 폴더에 풀고 `fallout-fission-x64.exe`를 실행하세요. `fonts` 폴더도 함께 복사합니다. 기존 `fission.cfg`를 유지하려면 배포본의 `[font]` 설정을 기존 파일의 같은 항목에 반영하세요.
+
+카페24 글꼴과 배포 라이선스가 포함되어 있습니다. 설정 편집기의 한국어 GDI 프리셋도 같은 글꼴과 크기를 적용합니다.
+
 ## 주요 기능
 
 - **정통 쿼터뷰 턴제 경험** (SPECIAL 시스템, 오리지널 폴아웃 게임플레이)
@@ -73,7 +81,7 @@ Fallout: F.I.S.S.I.O.N.은 [Fallout2-CE](https://github.com/alexbatalov/fallout2
 
 ### 빠른 설치
 1. **지원되는 폴아웃 1 또는 폴아웃 2 설치본이 정상적으로 작동하는지 확인합니다.**
-2. 최신 [F.I.S.S.I.O.N. 한국어 릴리스](https://github.com/munument1/-KR-fission-ce/releases)를 **다운로드**합니다.
+2. 최신 [F.I.S.S.I.O.N. 한국어 릴리스](https://github.com/munument1/Fallout2-Fission-CE-KR/releases)를 **다운로드**합니다.
 3. 다운로드한 F.I.S.S.I.O.N. 파일들을 폴아웃 2 설치 폴더에 **압축 해제**합니다.
 4. 한국어 Windows 빌드에서는 `fallout-fission-x64.exe`를 **실행**합니다.
 
