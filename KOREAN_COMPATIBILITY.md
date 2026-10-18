@@ -81,33 +81,6 @@ antialiased=1
 
 ## 설정 항목
 
-## 설정 편집기 사용
-
-Windows 배포판에는 `FissionConfigEditor.exe`를 함께 둘 수 있습니다. 이 도구는 같은 폴더의 `fission.cfg`를 기본으로 열고, `[system]`과 `[font]` 설정을 GUI에서 수정합니다.
-
-배포용 편집기는 처음 실행할 때 특정 사용자의 경로를 넣지 않습니다. `Browse`로 대상 `fission.cfg`를 직접 선택하거나, 빈 상태에서 `Save`를 눌러 저장 위치를 지정합니다.
-
-기능:
-
-- `language` 설정 변경
-- TTF 렌더러 켜기/끄기
-- 코드페이지 프리셋 선택
-- 목록에 없는 코드페이지 번호 직접 입력
-- 폰트 폴더와 TTF 파일명 설정
-- 폰트별 렌더링 크기와 줄 높이 조정
-- `width_scale`, `baseline_offset`, `antialiased` 조정
-- 한국어 CP949 프리셋 적용
-
-사용 방법:
-
-1. `FissionConfigEditor.exe`를 `fission.cfg`가 있는 폴더에 둡니다.
-2. `Browse`를 눌러 수정할 `fission.cfg`를 선택합니다.
-3. 한국어 패키지는 `Korean preset`을 누르면 기본 한국어 설정이 들어갑니다.
-4. 값을 조정한 뒤 `Save`를 누릅니다.
-5. 게임을 다시 실행합니다.
-
-TTF 렌더러를 쓰지 않으려면 `Disable TTF`를 누르거나 `ttf_renderer=0`으로 저장합니다.
-
 ### `ttf_renderer`
 
 TTF 렌더러 사용 여부입니다.
@@ -144,7 +117,7 @@ legacy_codepage=949
 
 현재 변환은 Windows API를 사용하므로 Windows 빌드에서 가장 안정적입니다. 다른 플랫폼에 병합하려면 SDL_iconv 또는 별도 코드페이지 변환 계층으로 일반화하는 작업이 필요합니다.
 
-목록에 없는 언어는 설정 편집기에서 `Custom / manual input`을 선택한 뒤 `Codepage number` 칸에 Windows 코드페이지 번호를 직접 입력합니다. 예를 들어 태국어는 `874`, 그리스어는 `1253`, 터키어는 `1254`, 히브리어는 `1255`, 아랍어는 `1256`, 발트어는 `1257`, 베트남어는 `1258`처럼 지정할 수 있습니다.
+다른 언어는 `fission.cfg`의 `[font]` 섹션에서 `legacy_codepage`에 Windows 코드페이지 번호를 지정합니다. 예를 들어 태국어는 `874`, 그리스어는 `1253`, 터키어는 `1254`, 히브리어는 `1255`, 아랍어는 `1256`, 발트어는 `1257`, 베트남어는 `1258`처럼 지정할 수 있습니다.
 
 ### `font_path` / `fallback_font_path`
 

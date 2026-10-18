@@ -15,7 +15,6 @@ Main differences:
 - Added CP949/EUC-KR Korean text handling.
 - Added word wrapping that can account for 2-byte legacy characters.
 - Added `[font]` settings in `fission.cfg`.
-- Added a Windows GUI editor, `FissionConfigEditor.exe`, for easier configuration.
 - Kept the default engine behavior compatible with upstream: TTF rendering is disabled by default and the original English / `.fon` fallback remains the default.
 
 Relevant files:
@@ -28,7 +27,6 @@ Relevant files:
 - `src/settings.cc`
 - `src/game_config.h`
 - `third_party/stb_truetype.h`
-- `tools/fission_config_editor.py`
 
 ## Design Goal
 
@@ -213,26 +211,6 @@ Values:
 
 - `0`: Harder, bitmap-like text.
 - `1`: Smoother text.
-
-## GUI Configuration Tool
-
-Windows packages can include:
-
-```text
-FissionConfigEditor.exe
-```
-
-The editor does not include a user-specific config path by default. Use `Browse` to select `fission.cfg`, or press `Save` with an empty path to choose where to save a new config.
-
-The editor can:
-
-- Change `language`.
-- Enable or disable TTF rendering.
-- Pick common codepage presets.
-- Accept manual codepage numbers.
-- Set font folders and TTF filenames.
-- Adjust font sizes, line heights, width scale, baseline offset, and antialiasing.
-- Apply a Korean CP949 preset.
 
 ## Korean Example
 
